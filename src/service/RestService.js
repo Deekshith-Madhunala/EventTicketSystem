@@ -1,0 +1,217 @@
+
+const BASE_URL = "http://localhost:8080/api";
+
+/**
+ * Create a new event.
+ */
+export const createEvent = async (formData) => {
+  try {
+    const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`).toISOString();
+    const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`).toISOString();
+
+    const eventCategory = formData.category.toUpperCase(); // Must match enum in backend
+    const venueId = "new-" + formData.venueName+ '-'+formData.ticketQuantity + '-'+ formData.address;
+
+    const payload = {
+      eventName: formData.eventName,
+      eventDescription: formData.description,
+      eventCategory,
+      startDateTime,
+      endDateTime,
+      venueId,
+    //   venueName,
+      ticketDetails: [
+        {
+          ticketName: formData.ticketName,
+          ticketQuantity: parseInt(formData.ticketQuantity, 10),
+          ticketPrice: parseFloat(formData.ticketPrice),
+          ticketPriceDetails: formData.ticketType
+        }
+      ],
+      contact: formData.contactDetails,
+      additionalMessage: formData.additionalMessage,
+      eventPhotoUrl: formData.posterPhoto, // placeholder
+      coverPhotoUrl: formData.coverPhoto  // placeholder
+    };
+
+    const response = await fetch(BASE_URL+'/events', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "*/*",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Create failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("createEvent error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get all events.
+ */
+export const getAllEvents = async () => {
+  try {
+    const response = await fetch(BASE_URL+'/events', {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Get events failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("getAllEvents error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get all venues.
+ */
+export const getAllVenues = async () => {
+  try {
+    const response = await fetch(BASE_URL+'/venues', {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Get events failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("getAllEvents error:", error);
+    throw error;
+  }
+};
+
+/**
+ * 
+ * @param {createBooking} bookingData 
+ * @returns 
+ */
+export const createBooking = async (bookingData) => {
+  try {
+    const response = await fetch(BASE_URL+'/bookings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bookingData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Booking failed');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating booking:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get all Bookings.
+ */
+export const getAllBookings = async () => {
+  try {
+    const response = await fetch(BASE_URL+'/bookings', {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Get bookings failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("getAllBookings error:", error);
+    throw error;
+  }
+};
+
+export const getEventById = async (eventId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/events/${eventId}`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Get event failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("getEventById error:", error);
+    throw error;
+  }
+};
+
+
+export const getVenueById = async (venueId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/venues/${venueId}`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Get venue failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("getVenueById error:", error);
+    throw error;
+  }
+};
+
+export async function fetchGoogleImages(query) {
+  const API_KEY = 'AIzaSyB_AnFyzbr5_3b0Z3sg-N1iyk9yyuTmvYk';  // Replace with your API key
+  const CSE_ID = '25b85bf266a0e4c19';  // Replace with your Custom Search Engine ID
+  
+  if (!query) return [];
+
+  try {
+    const response = await fetch(
+      `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&cx=${CSE_ID}&searchType=image&key=${API_KEY}`
+    );
+    const data = await response.json();
+    
+    // Check if the response contains items
+    if (data.items && data.items.length > 0) {
+      return data.items.map(item => item.link);  // Extract image URLs
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('Error fetching images from Google:', error);
+    return [];
+  }
+}
+
