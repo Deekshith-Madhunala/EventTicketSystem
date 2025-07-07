@@ -1,6 +1,7 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../Auth/AuthContext'
 
 const navigation = [
   { name: 'Dashboard', href: '/', current: true },
@@ -11,8 +12,13 @@ function classNames(...classes) {
 }
 
 const Navbar = () => {
-  const navigate = useNavigate()
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');  // redirect to login page after logout
+  };
   return (
     <Disclosure as="nav" className="bg-gray-800">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -82,7 +88,14 @@ const Navbar = () => {
                   <a href="/admin" className="block px-4 py-2 text-sm text-gray-700">Admin</a>
                 </MenuItem>
                 <MenuItem>
-                  <a href="#" className="block px-4 py-2 text-sm text-gray-700">Sign out</a>
+                  {/* Use a button or anchor with onClick */}
+                  <button
+                    onClick={handleLogout}
+                    className="block px-4 py-2 text-sm text-gray-700 w-full text-left"
+                    type="button"
+                  >
+                    Sign out
+                  </button>
                 </MenuItem>
               </MenuItems>
             </Menu>
