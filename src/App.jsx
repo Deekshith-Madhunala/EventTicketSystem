@@ -1,24 +1,28 @@
-import {Suspense} from 'react';
-import {BrowserRouter} from 'react-router-dom';
-import {Router} from './general/Router.jsx';
-import {Loading} from './components/Loading.jsx';
+import { Suspense, useEffect } from 'react';
+import { BrowserRouter } from 'react-router-dom';  // Import BrowserRouter here
+import { AppRouter } from './general/Router.jsx';  // Import AppRouter
+import { Loading } from './components/Loading.jsx';
+import { AuthProvider } from './components/Auth/AuthContext.jsx';
 
-export const PageWithHeader = ({children}) => (
+// PageWithHeader component for layout consistency
+export const PageWithHeader = ({ children }) => (
   <div className="flex h-full flex-col">{children}</div>
 );
 
 export const App = () => (
-  <BrowserRouter>
-    <Suspense
-      fallback={
-        <PageWithHeader>
-          <Loading name="suspense"/>
-        </PageWithHeader>
-      }
-    >
+  <BrowserRouter> {/* Ensure that BrowserRouter is wrapping the entire app */}
+    <AuthProvider>
+      <Suspense
+        fallback={
+          <PageWithHeader>
+            <Loading name="suspense" />  {/* Show a loading component while the app is loading */}
+          </PageWithHeader>
+        }
+      >
         <div>
-          <Router/>
+          <AppRouter />  {/* Use AppRouter to handle the routing */}
         </div>
-    </Suspense>
-  </BrowserRouter>
+      </Suspense>
+    </AuthProvider>
+  </BrowserRouter >
 );

@@ -1,11 +1,11 @@
 export const RoutePaths = {
   HOME: '/',
-  LOGIN: 'login',
+  LOGIN: '/login',
   REGISTER: '/register',
   EVENT_DETAILS: '/event-details',
   BOOK_TICKETS:'/book-tickets',
   SUCCESS:'/success',
   ADMIN:'/admin',
   CREATE:'/create-event',
-  MY_BOOKINGS:'my-bookings'
+  MY_BOOKINGS:'/my-bookings'
 };
