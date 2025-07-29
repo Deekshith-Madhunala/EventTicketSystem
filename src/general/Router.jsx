@@ -12,6 +12,7 @@ import AdminDashboard from "../components/admin/AdminDashboard.jsx";
 import CreateEvent from "../components/admin/CreateEvent.jsx";
 import MyBookings from "../components/bookings/MyBookings.jsx";
 import PrivateRoute from "../general/PrivateRoute"; // 🔐 Import this
+import EventsGrid from "../components/Cards/EventCards/EventsGrid.jsx";
 
 export const AppRouter = () => (
   <Routes>
@@ -31,17 +32,21 @@ export const AppRouter = () => (
     <Route path={RoutePaths.EVENT_DETAILS} element={<Layout><EventDetails /></Layout>} />
     <Route path={RoutePaths.BOOK_TICKETS} element={<Layout><TicketBooking /></Layout>} />
     <Route path={RoutePaths.SUCCESS} element={<Layout><SuccessPage /></Layout>} />
+    <Route path={RoutePaths.ADMIN} element={<Layout><AdminDashboard /></Layout>} />
+    <Route path={RoutePaths.EVENTS} element={<Layout><EventsGrid /></Layout>} />
+    <Route path={RoutePaths.CREATE} element={<Layout><CreateEvent /></Layout>} />
+    <Route path={RoutePaths.MY_BOOKINGS} element={<Layout><MyBookings /></Layout>} />
 
     {/* 🔐 Protected Routes */}
-    <Route
+    {/* <Route
       path={RoutePaths.ADMIN}
       element={
         <PrivateRoute>
           <Layout><AdminDashboard /></Layout>
         </PrivateRoute>
       }
-    />
-    <Route
+    /> */}
+    {/* <Route
       path={RoutePaths.CREATE}
       element={
         <PrivateRoute>
@@ -56,7 +61,7 @@ export const AppRouter = () => (
           <Layout><MyBookings /></Layout>
         </PrivateRoute>
       }
-    />
+    /> */}
 
     {/* Not Found fallback */}
     <Route path="*" element={<Layout><NotFound /></Layout>} />

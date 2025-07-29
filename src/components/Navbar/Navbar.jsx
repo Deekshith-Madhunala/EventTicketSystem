@@ -1,24 +1,40 @@
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../Auth/AuthContext'
+import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../Auth/AuthContext';
 
 const navigation = [
   { name: 'Dashboard', href: '/', current: true },
-]
+];
+
+const profilePics = [
+  "https://randomuser.me/api/portraits/men/1.jpg",  // Random Male 1
+  "https://randomuser.me/api/portraits/women/1.jpg", // Random Female 1
+  "https://randomuser.me/api/portraits/men/2.jpg",  // Random Male 2
+  "https://randomuser.me/api/portraits/women/2.jpg", // Random Female 2
+  "https://randomuser.me/api/portraits/men/3.jpg",  // Random Male 3
+  "https://randomuser.me/api/portraits/women/3.jpg", // Random Female 3
+  "https://randomuser.me/api/portraits/men/4.jpg",  // Random Male 4
+  "https://randomuser.me/api/portraits/women/4.jpg", // Random Female 4
+];
+
 
 function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
+  return classes.filter(Boolean).join(' ');
 }
 
 const Navbar = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();  // Get user data from AuthContext
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate('/login');  // redirect to login page after logout
+    navigate('/login');  // Redirect to login page after logout
   };
+
+  // Randomly select a profile picture from the array
+  const randomProfilePic = profilePics[Math.floor(Math.random() * profilePics.length)];
+
   return (
     <Disclosure as="nav" className="bg-gray-800">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -42,23 +58,6 @@ const Navbar = () => {
               />
               <span className="text-white ml-2 font-semibold text-lg hidden sm:block">BookMyEvent</span>
             </div>
-
-            {/* Navigation links (only Dashboard for now) */}
-            <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
-              {/* If you want to keep Dashboard here uncomment below */}
-              {/* {navigation.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className={classNames(
-                    item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                    'rounded-md px-3 py-2 text-sm font-medium',
-                  )}
-                >
-                  {item.name}
-                </a>
-              ))} */}
-            </div>
           </div>
 
           {/* Right side: My Events button + Profile */}
@@ -75,20 +74,29 @@ const Navbar = () => {
                 <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:outline-hidden">
                   <img
                     className="size-8 rounded-full"
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
-                    alt=""
+                    src={randomProfilePic} // Use the random profile picture here
+                    alt="User profile"
                   />
                 </MenuButton>
               </div>
               <MenuItems className="absolute right-0 z-10 mt-2 w-48 origin-top-right bg-white rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+
+                {/* Conditionally show Admin menu item if user role is 'ADMIN' */}
+                {user?.role === 'ADMIN' && (
+                  <MenuItem>
+                    <a href="/admin" className="block px-4 py-2 text-sm text-gray-700">Admin</a>
+                  </MenuItem>
+                )}
+
+                {/* Display logged-in user name */}
+                {user && (
+                  <MenuItem className="px-4 py-2 text-sm text-gray-700">
+                    <span className="block text-gray-700 font-semibold">Hello, {user.username}</span>
+                  </MenuItem>
+                )}
+
+                {/* Sign out button */}
                 <MenuItem>
-                  <a href="#" className="block px-4 py-2 text-sm text-gray-700">Your Profile</a>
-                </MenuItem>
-                <MenuItem>
-                  <a href="/admin" className="block px-4 py-2 text-sm text-gray-700">Admin</a>
-                </MenuItem>
-                <MenuItem>
-                  {/* Use a button or anchor with onClick */}
                   <button
                     onClick={handleLogout}
                     className="block px-4 py-2 text-sm text-gray-700 w-full text-left"
@@ -103,7 +111,7 @@ const Navbar = () => {
         </div>
       </div>
     </Disclosure>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

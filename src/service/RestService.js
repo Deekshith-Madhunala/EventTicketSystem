@@ -191,6 +191,28 @@ export const getVenueById = async (venueId) => {
   }
 };
 
+export const registerUser = async (userData) => {
+    try {
+        const response = await fetch(BASE_URL+'/users', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
+        });
+
+        if (!response.ok) {
+            throw new Error('Registration failed. Please try again.');
+        }
+
+        const result = await response.json();
+        return result; // Handle the success response
+    } catch (error) {
+        throw new Error(error.message || 'An error occurred while registering.');
+    }
+};
+
 export async function fetchGoogleImages(query) {
   const API_KEY = 'AIzaSyB_AnFyzbr5_3b0Z3sg-N1iyk9yyuTmvYk';  // Replace with your API key
   const CSE_ID = '25b85bf266a0e4c19';  // Replace with your Custom Search Engine ID

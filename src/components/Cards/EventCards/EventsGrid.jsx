@@ -39,6 +39,14 @@ const EventsGrid = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* Featured Events Header */}
+      <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-800 mb-8 relative">
+        Featured Events
+        {/* Accent Line Under the Title */}
+        <div className="absolute bottom-[-10px] left-0 w-16 h-1 bg-indigo-600"></div>
+      </h1>
+
+      {/* Grid of Event Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
         {events.map((event, index) => (
           <EventCard

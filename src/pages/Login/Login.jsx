@@ -7,7 +7,7 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const {login} = useAuth();
+    const { login } = useAuth();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -22,22 +22,17 @@ const LoginPage = () => {
         }
     };
 
-
     return (
-        <div className="flex h-[700px] w-full">
-            <div className="w-full hidden md:inline-block">
-                <img
-                    className="h-full"
-                    src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/login/leftSideImage.png"
-                    alt="leftSideImage"
-                />
+        <div className="flex h-screen w-full">
+            {/* Left side with gradient and text, filling the entire height */}
+            <div className="w-full md:w-1/2 flex flex-col justify-center items-center bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-12 py-8 h-full">
+                <h1 className="text-4xl font-semibold">Book My Events</h1>
+                <p className="text-lg mt-4">Manage your events efficiently with a seamless, easy-to-use platform. Get started now!</p>
             </div>
 
-            <div className="w-full flex flex-col items-center justify-center">
-                <form
-                    className="md:w-96 w-80 flex flex-col items-center justify-center"
-                    onSubmit={handleLogin}
-                >
+            {/* Right side with form */}
+            <div className="w-full md:w-1/2 flex flex-col items-center justify-center h-full">
+                <form className="md:w-96 w-80 flex flex-col items-center justify-center" onSubmit={handleLogin}>
                     <h2 className="text-4xl text-gray-900 font-medium">Sign in</h2>
                     <p className="text-sm text-gray-500/90 mt-3">
                         Welcome back! Please sign in to continue

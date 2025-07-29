@@ -2,6 +2,7 @@ export const RoutePaths = {
   HOME: '/',
   LOGIN: '/login',
   REGISTER: '/register',
+  EVENTS: '/events',
   EVENT_DETAILS: '/event-details',
   BOOK_TICKETS:'/book-tickets',
   SUCCESS:'/success',
