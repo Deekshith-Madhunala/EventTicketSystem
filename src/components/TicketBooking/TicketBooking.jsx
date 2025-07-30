@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import { createBooking } from '../../service/RestService';
 
-
+// PaymentModal Component
 const PaymentModal = ({ isOpen, onClose, eventData, attendees, total, tax, basePrice }) => {
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
@@ -13,6 +13,23 @@ const PaymentModal = ({ isOpen, onClose, eventData, attendees, total, tax, baseP
 
   const navigate = useNavigate();
 
+  // Get user from localStorage (adjust key if needed)
+  const user = JSON.parse(localStorage.getItem("user"))?.id;
+
+  if (!user) {
+    throw new Error("User not found in localStorage");
+  }
+
+  const isFreeEvent = eventData?.ticketDetails?.[0]?.ticketPriceDetails === 'free';
+
+  const handlePayment = () => {
+    if (isFreeEvent) {
+      handlePurchase();  // Directly handle purchase if the event is free
+    } else {
+      setPaymentModalOpen(true);  // Open the modal if the event is paid
+    }
+  };
+
   const handlePurchase = async () => {
     const now = new Date();
 
@@ -20,10 +37,10 @@ const PaymentModal = ({ isOpen, onClose, eventData, attendees, total, tax, baseP
       totalAmount: total,
       numberOfTickets: attendees.length,
       bookingStatus: 'CONFIRMED',
-      paymentStatus: 'PAID',
+      paymentStatus: isFreeEvent ? 'PAID' : 'UNPAID', // For free events, payment is "paid"
       bookingDate: now.toISOString().split('T')[0],
       cancellationDeadline: new Date(now.getTime() + 2 * 60 * 60 * 1000).toISOString(), // e.g. 2 hours later
-      userId: '68656da97c118f0bf3b026a2', // Replace this with actual user ID (from auth)
+      userId: user,
       eventId: eventData.id, // Ensure eventData contains event ID
       bookingPaymentIds: [], // Or pass actual payment ID references
     };
@@ -48,7 +65,6 @@ const PaymentModal = ({ isOpen, onClose, eventData, attendees, total, tax, baseP
       alert('Booking failed. Please try again.');
     }
   };
-
 
   if (!isOpen) return null;
 
@@ -80,29 +96,39 @@ const PaymentModal = ({ isOpen, onClose, eventData, attendees, total, tax, baseP
             </div>
             <div className="md:w-1/2 space-y-4">
               <h2 className="text-xl font-semibold">Payment Information</h2>
-              <input
-                type="text"
-                placeholder="Card Number"
-                value={cardNumber}
-                onChange={(e) => setCardNumber(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="MM/YY"
-                  value={expiry}
-                  onChange={(e) => setExpiry(e.target.value)}
-                  className="w-1/2 p-2 border border-gray-300 rounded-md"
-                />
-                <input
-                  type="text"
-                  placeholder="CVV"
-                  value={cvv}
-                  onChange={(e) => setCvv(e.target.value)}
-                  className="w-1/2 p-2 border border-gray-300 rounded-md"
-                />
-              </div>
+
+              {isFreeEvent ? (
+                <div className="text-lg text-green-600">
+                  <p>This event is free! You're all set to book.</p>
+                </div>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Card Number"
+                    value={cardNumber}
+                    onChange={(e) => setCardNumber(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="MM/YY"
+                      value={expiry}
+                      onChange={(e) => setExpiry(e.target.value)}
+                      className="w-1/2 p-2 border border-gray-300 rounded-md"
+                    />
+                    <input
+                      type="text"
+                      placeholder="CVV"
+                      value={cvv}
+                      onChange={(e) => setCvv(e.target.value)}
+                      className="w-1/2 p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                </>
+              )}
+
               <button
                 onClick={handlePurchase}
                 className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
@@ -131,6 +157,8 @@ const PaymentModal = ({ isOpen, onClose, eventData, attendees, total, tax, baseP
   );
 };
 
+
+// TicketBooking Component
 const TicketBooking = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -157,7 +185,6 @@ const TicketBooking = () => {
   }, [ticketCount]);
 
   const calculatePrice = (count) => {
-
     const subtotal = basePrice * count;
     const taxAmount = subtotal * 0.1;
     const roundedSubtotal = parseFloat(subtotal.toFixed(2));
@@ -166,7 +193,6 @@ const TicketBooking = () => {
     setTax(roundedTaxAmount);
     setTotalPrice(roundedTotalPrice);
   };
-
 
   const handleTicketCountChange = (e) => {
     const val = Math.max(1, Number(e.target.value));

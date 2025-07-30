@@ -320,9 +320,10 @@ const CreateEvent = () => {
                         <LabelWithIcon icon={TicketIcon} text="Quantity" />
                         <input
                             type="number"
-                            value={formData.ticketType === 'free' ? '0' : formData.ticketQuantity} // If ticketType is 'free', set the value to '0'
+                            // value={formData.ticketType === 'free' ? '0' : formData.ticketQuantity} // If ticketType is 'free', set the value to '0'
+                            value={formData.ticketQuantity} // If ticketType is 'free', set the value to '0'
                             onChange={e => handleChange('ticketQuantity', e.target.value)} // Update ticketQuantity when changed
-                            disabled={formData.ticketType === 'free'} // Disable the field if ticketType is 'free'
+                            // disabled={formData.ticketType === 'free'} // Disable the field if ticketType is 'free'
                             className="w-full p-2 border border-gray-300 rounded-md"
                         />
                     </div>
