@@ -9,7 +9,18 @@ const MyBookings = () => {
   useEffect(() => {
     const fetchBookingsDetails = async () => {
       try {
-        const bookings = await getAllBookings();
+
+        const user = JSON.parse(localStorage.getItem("user"))?.id;
+
+        if (!user) {
+          throw new Error("User not found in localStorage");
+        }
+        let bookings = await getAllBookings();
+
+        // console.log("booking before filter:", bookings);
+
+        bookings = bookings.filter((booking) => booking.userId === user);
+        // console.log("booking after filter:", bookings);
 
         const detailedBookings = await Promise.all(
           bookings.map(async (booking) => {
