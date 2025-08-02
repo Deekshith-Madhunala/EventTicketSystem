@@ -20,12 +20,14 @@ const MyBookings = () => {
         // console.log("booking before filter:", bookings);
 
         bookings = bookings.filter((booking) => booking.userId === user);
-        // console.log("booking after filter:", bookings);
+        console.log("booking after filter:", bookings);
 
         const detailedBookings = await Promise.all(
           bookings.map(async (booking) => {
             try {
               const event = await getEventById(booking.eventId);
+              console.log("event", event);
+              
 
               // Fetch venue data using event.venueId
               let venueName = 'Unknown Venue';

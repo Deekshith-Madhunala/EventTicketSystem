@@ -21,6 +21,7 @@ const PaymentModal = ({ isOpen, onClose, eventData, attendees, total, tax, baseP
   }
 
   const isFreeEvent = eventData?.ticketDetails?.[0]?.ticketPriceDetails === 'free';
+  const attendeesAllowed = eventData?.ticketDetails?.[0]?.ticketQuantity > 0;
 
   const handlePayment = () => {
     if (isFreeEvent) {
@@ -158,6 +159,19 @@ const PaymentModal = ({ isOpen, onClose, eventData, attendees, total, tax, baseP
 };
 
 
+// Snackbar Component
+const Snackbar = ({ message, isOpen, onClose }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 p-4 bg-red-600 text-white rounded-md shadow-md">
+      <div className="flex justify-between items-center">
+        <span>{message}</span>
+        <button onClick={onClose} className="text-white font-bold">×</button>
+      </div>
+    </div>
+  );
+};
+
 // TicketBooking Component
 const TicketBooking = () => {
   const { state } = useLocation();
@@ -171,6 +185,10 @@ const TicketBooking = () => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [tax, setTax] = useState(0);
   const [isPaymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isSnackbarOpen, setSnackbarOpen] = useState(false);
+
+  const availableTickets = event?.ticketDetails?.[0]?.ticketQuantity || 0;
 
   useEffect(() => {
     if (peopleDetails.length < ticketCount) {
@@ -196,6 +214,12 @@ const TicketBooking = () => {
 
   const handleTicketCountChange = (e) => {
     const val = Math.max(1, Number(e.target.value));
+    if (val > availableTickets) {
+      setErrorMessage(`Only ${availableTickets} tickets are available.`);
+      setSnackbarOpen(true);
+    } else {
+      setErrorMessage('');
+    }
     setTicketCount(val);
   };
 
@@ -208,7 +232,14 @@ const TicketBooking = () => {
     setPeopleDetails(updatedDetails);
   };
 
-  const addPerson = () => setTicketCount((prev) => prev + 1);
+  const addPerson = () => {
+    if (ticketCount < availableTickets) {
+      setTicketCount((prev) => prev + 1);
+    } else {
+      setErrorMessage(`You can only book up to ${availableTickets} tickets.`);
+      setSnackbarOpen(true);
+    }
+  };
 
   const deletePerson = (index) => {
     setPeopleDetails((prev) => {
@@ -216,6 +247,10 @@ const TicketBooking = () => {
       setTicketCount(updated.length);
       return updated;
     });
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   if (!event) {
@@ -240,8 +275,12 @@ const TicketBooking = () => {
             value={ticketCount}
             onChange={handleTicketCountChange}
             min="1"
+            max={availableTickets}
             className="p-2 w-full border border-gray-300 rounded-md"
           />
+          {errorMessage && (
+            <div className="text-red-600 text-sm mt-2">{errorMessage}</div>
+          )}
         </div>
 
         <div className="space-y-6">
@@ -322,6 +361,9 @@ const TicketBooking = () => {
         tax={tax}
         basePrice={basePrice}
       />
+
+      {/* Snackbar */}
+      <Snackbar message={errorMessage} isOpen={isSnackbarOpen} onClose={handleSnackbarClose} />
     </div>
   );
 };
