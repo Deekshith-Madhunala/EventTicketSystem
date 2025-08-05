@@ -6,7 +6,7 @@ const BASE_URL = "http://localhost:8080/api";
  */
 export const createEvent = async (formData) => {
   console.log("formData:", formData);
-  
+
   try {
     const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`).toISOString();
     const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`).toISOString();
@@ -30,7 +30,7 @@ export const createEvent = async (formData) => {
     });
     console.log("venueId createed ::: ", venueId);
     // return
-    
+
     // const venueId = "new-" + formData.venueName + '-' + formData.ticketQuantity + '-' + formData.address;
 
     const payload = {
@@ -123,6 +123,34 @@ export const getBookings = async () => {
     // Handle any errors that occurred during the fetch
     console.error('Error fetching bookings:', error);
     throw error;
+  }
+};
+
+export const cancelBooking = async (booking) => {
+  const updatedBooking = {
+    ...booking,
+    bookingStatus: 'CANCELLED',
+  };
+
+  const response = await fetch(`http://localhost:8080/api/bookings/${booking.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: '*/*',
+    },
+    body: JSON.stringify(updatedBooking),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to cancel booking');
+  }
+
+  // Check if the response has a body
+  const contentLength = response.headers.get('content-length');
+  if (contentLength && parseInt(contentLength) > 0) {
+    return await response.json();
+  } else {
+    return null; // or just return updatedBooking if needed
   }
 };
 
