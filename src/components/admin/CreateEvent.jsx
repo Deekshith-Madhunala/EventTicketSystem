@@ -77,6 +77,8 @@ const CreateEvent = () => {
         endTime: '18:00',  // 6:00 PM        address: '',
         venueName: '',
         venueCapacity: '0',
+        venueCity:'',
+        venueZipCode:'',
         ticketName: '',
         ticketQuantity: '0',
         ticketPrice: '0',
@@ -252,6 +254,16 @@ const CreateEvent = () => {
                                 onFocus={(e) => e.target.showPicker()}  // Focus will trigger time picker
                             />
                         </div>
+                        {/* Venue Name */}
+                        <div>
+                            <LabelWithIcon icon={MapPinIcon} text="Venue Name" />
+                            <input
+                                type="text"
+                                value={formData.venueName}
+                                onChange={e => handleChange('venueName', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                            />
+                        </div>
 
                         {/* Venue Address */}
                         <div>
@@ -264,13 +276,24 @@ const CreateEvent = () => {
                             />
                         </div>
 
-                        {/* Venue Name */}
+                        {/* Venue City */}
                         <div>
-                            <LabelWithIcon icon={MapPinIcon} text="Venue Name" />
+                            <LabelWithIcon icon={MapPinIcon} text="Venue City" />
                             <input
                                 type="text"
-                                value={formData.venueName}
-                                onChange={e => handleChange('venueName', e.target.value)}
+                                value={formData.venueCity}
+                                onChange={e => handleChange('venueCity', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                            />
+                        </div>
+
+                        {/* Venue zipCode */}
+                        <div>
+                            <LabelWithIcon icon={MapPinIcon} text="Venue Zip Code" />
+                            <input
+                                type="text"
+                                value={formData.venueZipCode}
+                                onChange={e => handleChange('venueZipCode', e.target.value)}
                                 className="w-full p-2 border border-gray-300 rounded-md"
                             />
                         </div>
