@@ -99,6 +99,34 @@ export const getAllEvents = async () => {
   }
 };
 
+
+// This function will fetch bookings from the API.
+export const getBookings = async () => {
+  try {
+    // Make the GET request to the API
+    const response = await fetch('http://localhost:8080/api/bookings', {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json', // Set the expected response type
+      },
+    });
+
+    // Check if the response is successful
+    if (!response.ok) {
+      throw new Error('Failed to fetch bookings');
+    }
+
+    // Parse and return the JSON response
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    // Handle any errors that occurred during the fetch
+    console.error('Error fetching bookings:', error);
+    throw error;
+  }
+};
+
+
 /**
  * Get all venues.
  */

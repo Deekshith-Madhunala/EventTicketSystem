@@ -264,7 +264,7 @@ const TicketBooking = () => {
   return (
     <div className="relative max-w-7xl mx-auto mt-12 px-4 md:px-8 flex flex-col md:flex-row gap-8">
       <div className="w-full md:w-2/3 space-y-6">
-        <h2 className="text-3xl font-bold text-gray-900">Book Your Tickets</h2>
+        <h2 className="text-3xl font-bold text-gray-900">Get Your Tickets</h2>
         <div>
           <label htmlFor="ticketCount" className="block text-sm font-medium text-gray-700 mb-1">
             Number of Tickets
