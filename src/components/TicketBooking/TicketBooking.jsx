@@ -13,6 +13,9 @@ const PaymentModal = ({ isOpen, onClose, eventData, attendees, total, tax, baseP
 
   const navigate = useNavigate();
 
+  const selectedDates = eventData.selectedDates;
+
+
   // Get user from localStorage (adjust key if needed)
   const user = JSON.parse(localStorage.getItem("user"))?.id;
 
@@ -87,9 +90,16 @@ const PaymentModal = ({ isOpen, onClose, eventData, attendees, total, tax, baseP
                 alt={eventData.eventName}
                 className="w-full h-64 object-cover rounded-md"
               />
-              <div className="text-gray-700 space-y-2">
+              {/* <div className="text-gray-700 space-y-2">
                 <h2 className="text-2xl font-bold">{eventData.eventName}</h2>
                 <p><strong>Date:</strong> {new Date(eventData.startDateTime).toLocaleString()}</p>
+                <p><strong>Location:</strong> {eventData.venue?.venueName || 'TBD'}</p>
+                <p><strong>Tickets:</strong> {attendees.length}</p>
+                <p><strong>Total:</strong> ${total.toFixed(2)} (incl. ${tax.toFixed(2)} tax)</p>
+              </div> */}
+              <div className="text-gray-700 space-y-2">
+                <h2 className="text-2xl font-bold">{eventData.eventName}</h2>
+                <p><strong>Selected Dates:</strong> {selectedDates.length > 0 ? selectedDates.join(', ') : 'None'}</p>
                 <p><strong>Location:</strong> {eventData.venue?.venueName || 'TBD'}</p>
                 <p><strong>Tickets:</strong> {attendees.length}</p>
                 <p><strong>Total:</strong> ${total.toFixed(2)} (incl. ${tax.toFixed(2)} tax)</p>
@@ -188,7 +198,34 @@ const TicketBooking = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSnackbarOpen, setSnackbarOpen] = useState(false);
 
+  const [selectedDates, setSelectedDates] = useState([]);
+
+
   const availableTickets = event?.ticketDetails?.[0]?.ticketQuantity || 0;
+
+  const handleDateSelection = (date) => {
+    const dateString = date.toDateString();
+    setSelectedDates((prevSelectedDates) => {
+      if (prevSelectedDates.includes(dateString)) {
+        return prevSelectedDates.filter((d) => d !== dateString); // Remove date if it's already selected
+      } else {
+        return [...prevSelectedDates, dateString]; // Add the date if it's not selected
+      }
+    });
+  };
+
+
+  const generateDateButtons = (startDate, endDate) => {
+    const dates = [];
+    let currentDate = new Date(startDate);
+
+    while (currentDate <= new Date(endDate)) {
+      dates.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return dates;
+  };
 
   useEffect(() => {
     if (peopleDetails.length < ticketCount) {
@@ -253,6 +290,11 @@ const TicketBooking = () => {
     setSnackbarOpen(false);
   };
 
+  // Get the start and end dates for generating the buttons
+  const startDate = new Date(event?.startDateTime);
+  const endDate = new Date(event?.endDateTime);
+
+  const dateButtons = generateDateButtons(startDate, endDate);
   if (!event) {
     return (
       <div className="text-center py-10 text-red-600">
@@ -282,6 +324,25 @@ const TicketBooking = () => {
             <div className="text-red-600 text-sm mt-2">{errorMessage}</div>
           )}
         </div>
+
+        <div className="w-full md:w-2/3 space-y-6">
+          <h3 className="text-2xl font-bold text-gray-900">Select Dates</h3>
+          <div className="flex gap-4">
+            {dateButtons.map((date, index) => (
+              <button
+                key={index}
+                onClick={() => handleDateSelection(date)}
+                className={`px-4 py-2 ${selectedDates.includes(date.toDateString())
+                    ? 'bg-indigo-700 text-white border-2 border-indigo-500' // selected state
+                    : 'bg-transparent text-indigo-700 border-2 border-indigo-300' // unselected state (colorless)
+                  } rounded-md hover:bg-indigo-500 hover:text-white transition-all`}
+              >
+                {date.toLocaleDateString()}
+              </button>
+            ))}
+          </div>
+        </div>
+
 
         <div className="space-y-6">
           {peopleDetails.map((person, index) => (
@@ -355,7 +416,7 @@ const TicketBooking = () => {
       <PaymentModal
         isOpen={isPaymentModalOpen}
         onClose={() => setPaymentModalOpen(false)}
-        eventData={event}
+        eventData={{ ...event, selectedDates }}  // Add selectedDates to eventData
         attendees={peopleDetails}
         total={totalPrice}
         tax={tax}

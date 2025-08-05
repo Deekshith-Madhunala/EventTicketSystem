@@ -16,10 +16,11 @@ const EventCard = ({ event, venue }) => {
     if (!ticketDetails) return false; // If ticketDetails are missing, the event should not be disabled
 
     const eventStartDate = new Date(event.startDateTime); // Event start date
+    const eventEndDate = new Date(event.endDateTime); // Event end date
 
     // Case 1: PAID_LIMITED - Check ticket quantity and event date
     if (event?.eventType === 'PAID_LIMITED') {
-      if (ticketDetails?.ticketQuantity <= 0 || eventStartDate < currentDate) {
+      if (ticketDetails?.ticketQuantity <= 0 || eventEndDate <= eventStartDate) {
         return true; // Tickets are sold out or event has passed
       }
       return false; // Tickets available and event has not passed
@@ -27,7 +28,7 @@ const EventCard = ({ event, venue }) => {
 
     // Case 2: FREE_LIMITED - Check ticket quantity and event date
     if (event?.eventType === 'FREE_LIMITED') {
-      if (ticketDetails?.ticketQuantity <= 0 || eventStartDate < currentDate) {
+      if (ticketDetails?.ticketQuantity <= 0 || eventEndDate <= eventStartDate) {
         return true; // No tickets left or event has passed
       }
       return false; // Tickets available and event has not passed
@@ -35,7 +36,7 @@ const EventCard = ({ event, venue }) => {
 
     // Case 3: FREE_UNLIMITED - Check only event date
     if (event?.eventType === 'FREE_UNLIMITED') {
-      if (eventStartDate < currentDate) {
+      if (eventEndDate <= eventStartDate) {
         return true; // Event date has passed
       }
       return false; // Event is open and future
@@ -67,10 +68,11 @@ const EventCard = ({ event, venue }) => {
     const ticket = ticketDetails[0];
 
     const eventStartDate = new Date(event.startDateTime); // Event start date
+    const eventEndDate = new Date(event.endDateTime); // Event end date
 
     // For PAID_LIMITED and FREE_LIMITED, check ticket quantity and event date
     if (eventType === 'PAID_LIMITED' || eventType === 'FREE_LIMITED') {
-      if (ticket.ticketQuantity <= 0 || eventStartDate < currentDate) {
+      if (ticket.ticketQuantity <= 0 || eventEndDate <= eventStartDate) {
         return "Registrations closed"; // Tickets are sold out or event date has passed
       } else {
         return `${ticket.ticketQuantity} tickets available for ${eventType === 'PAID_LIMITED' ? `$${ticket.ticketPrice}` : 'free'}`; // Tickets available
@@ -79,7 +81,7 @@ const EventCard = ({ event, venue }) => {
 
     // For FREE_UNLIMITED, only check the event date
     if (eventType === 'FREE_UNLIMITED') {
-      if (eventStartDate < currentDate) {
+      if (eventEndDate <= eventStartDate) {
         return "Registrations closed"; // Event date has passed
       } else {
         return "Free and open to register"; // Event is upcoming
