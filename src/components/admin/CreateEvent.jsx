@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CalendarIcon, ClockIcon, MapPinIcon, PhotoIcon, TagIcon, TicketIcon, UserIcon, ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from "react-router-dom";
 import { fetchGoogleImages, createEvent } from '../../service/RestService';
@@ -71,14 +71,15 @@ const CreateEvent = () => {
         eventName: '',
         description: '',
         category: '',
+        eventType: 'PAID_LIMITED',
         startDate: new Date().toISOString().split('T')[0],  // today's date in yyyy-mm-dd format
         startTime: '09:00',  // 9:00 AM
         endDate: new Date().toISOString().split('T')[0],  // today's date in yyyy-mm-dd format
         endTime: '18:00',  // 6:00 PM        address: '',
         venueName: '',
         venueCapacity: '0',
-        venueCity:'',
-        venueZipCode:'',
+        venueCity: '',
+        venueZipCode: '',
         ticketName: '',
         ticketQuantity: '0',
         ticketPrice: '0',
@@ -135,6 +136,15 @@ const CreateEvent = () => {
         }
     };
 
+    useEffect(() => {
+        if (formData.eventType === 'PAID_LIMITED') {
+            setFormData(prev => ({ ...prev, ticketType: 'paid' }));
+        } else if (formData.eventType === 'FREE_LIMITED' || formData.eventType === 'FREE_UNLIMITED') {
+            setFormData(prev => ({ ...prev, ticketType: 'free' }));
+        }
+    }, [formData.eventType]);
+
+
     const LabelWithIcon = ({ icon: Icon, text }) => (
         <label className="flex items-center text-gray-700 font-medium mb-1">
             <Icon className="w-4 h-4 mr-2 text-blue-500" /> {text}
@@ -161,6 +171,27 @@ const CreateEvent = () => {
                         <h2 className="text-xl font-semibold text-gray-800">Tell the world about your event</h2>
                         <p className="text-sm text-gray-500">Provide the title, description, and category of your event.</p>
                     </div>
+
+                    <div>
+                        <p className="text-sm text-gray-700">Event Type?</p>
+                        <select
+                            value={formData.eventType}
+                            onChange={e => handleChange('eventType', e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                        >
+                            <option value="">Select a Type of Event</option>
+                            <option value="PAID_LIMITED">
+                                Paid, Limited Capacity – e.g. Concerts, Sports Games
+                            </option>
+                            <option value="FREE_LIMITED">
+                                Free, Limited Capacity – e.g. Conferences, Meetings
+                            </option>
+                            <option value="FREE_UNLIMITED">
+                                Free, Unlimited Capacity – e.g. Exhibitions, Fairs
+                            </option>
+                        </select>
+                    </div>
+
 
                     <div>
                         <p className="text-sm text-gray-700">What is your event name?</p>
@@ -303,66 +334,76 @@ const CreateEvent = () => {
                 </div>
             )}
 
-
             {activeTab === 2 && (
                 <div className="space-y-5">
-                    <h2 className="text-xl font-semibold text-gray-800">Add ticket details including name, price, and quantity.</h2>
+                    <h2 className="text-xl font-semibold text-gray-800">
+                        Add ticket details including name, price, and quantity.
+                    </h2>
 
                     {/* Ticket Type Selection - Button Style */}
                     <div className="mb-4">
                         <LabelWithIcon icon={TicketIcon} text="Ticket Type" />
                         <div className="flex space-x-4">
-                            <button
-                                onClick={() => handleChange('ticketType', 'paid')}
-                                className={`w-full p-2 rounded-md text-white ${formData.ticketType === 'paid' ? 'bg-blue-600' : 'bg-gray-300'}`}
-                            >
-                                Paid
-                            </button>
-                            <button
-                                onClick={() => handleChange('ticketType', 'free')}
-                                className={`w-full p-2 rounded-md text-white ${formData.ticketType === 'free' ? 'bg-blue-600' : 'bg-gray-300'}`}
-                            >
-                                Free
-                            </button>
+                            {/* If PAID_LIMITED, only show Paid */}
+                            {formData.eventType === 'PAID_LIMITED' && (
+                                <button
+                                    disabled
+                                    className="w-full p-2 rounded-md text-white bg-blue-600 cursor-default"
+                                >
+                                    Paid
+                                </button>
+                            )}
+
+                            {/* If FREE_LIMITED or FREE_UNLIMITED, only show Free */}
+                            {(formData.eventType === 'FREE_LIMITED' || formData.eventType === 'FREE_UNLIMITED') && (
+                                <button
+                                    disabled
+                                    className="w-full p-2 rounded-md text-white bg-blue-600 cursor-default"
+                                >
+                                    Free
+                                </button>
+                            )}
                         </div>
                     </div>
 
-                    {/* Ticket Name */}
-                    <div>
-                        <LabelWithIcon icon={TicketIcon} text="Ticket Name" />
-                        <input
-                            type="text"
-                            value={formData.ticketName}
-                            onChange={e => handleChange('ticketName', e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md"
-                        />
-                    </div>
+                    {/* Conditionally Render Ticket Name */}
+                    {formData.eventType === 'PAID_LIMITED' && (
+                        <div>
+                            <LabelWithIcon icon={TicketIcon} text="Ticket Name" />
+                            <input
+                                type="text"
+                                value={formData.ticketName}
+                                onChange={e => handleChange('ticketName', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                            />
+                        </div>
+                    )}
 
-                    {/* Ticket Quantity */}
-                    <div>
-                        <LabelWithIcon icon={TicketIcon} text="Quantity" />
-                        <input
-                            type="number"
-                            // value={formData.ticketType === 'free' ? '0' : formData.ticketQuantity} // If ticketType is 'free', set the value to '0'
-                            value={formData.ticketQuantity} // If ticketType is 'free', set the value to '0'
-                            onChange={e => handleChange('ticketQuantity', e.target.value)} // Update ticketQuantity when changed
-                            // disabled={formData.ticketType === 'free'} // Disable the field if ticketType is 'free'
-                            className="w-full p-2 border border-gray-300 rounded-md"
-                        />
-                    </div>
+                    {/* Conditionally Render Ticket Quantity (Hide for FREE_UNLIMITED) */}
+                    {(formData.eventType === 'PAID_LIMITED' || formData.eventType === 'FREE_LIMITED') && (
+                        <div>
+                            <LabelWithIcon icon={TicketIcon} text="Quantity" />
+                            <input
+                                type="number"
+                                value={formData.ticketQuantity}
+                                onChange={e => handleChange('ticketQuantity', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                            />
+                        </div>
+                    )}
 
-
-                    {/* Ticket Price */}
-                    <div>
-                        <LabelWithIcon icon={TicketIcon} text="Price" />
-                        <input
-                            type="text"
-                            value={formData.ticketType === 'free' ? 'Free' : formData.ticketPrice || '$9.99'}
-                            onChange={e => handleChange('ticketPrice', e.target.value)}
-                            disabled={formData.ticketType === 'free'}
-                            className="w-full p-2 border border-gray-300 rounded-md"
-                        />
-                    </div>
+                    {/* Conditionally Render Ticket Price */}
+                    {formData.eventType === 'PAID_LIMITED' && (
+                        <div>
+                            <LabelWithIcon icon={TicketIcon} text="Price" />
+                            <input
+                                type="text"
+                                value={formData.ticketPrice || '$9.99'}
+                                onChange={e => handleChange('ticketPrice', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                            />
+                        </div>
+                    )}
                 </div>
             )}
 

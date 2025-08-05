@@ -5,28 +5,43 @@ import { TicketIcon } from '@heroicons/react/24/solid';
 
 const EventCard = ({ event, venue }) => {
   const navigate = useNavigate();
-  const [showSnackbar, setShowSnackbar] = useState(false);  // For snackbar visibility
+  const [showSnackbar, setShowSnackbar] = useState(false); // For snackbar visibility
+
+  const currentDate = new Date();
 
   // Determine if the card should be disabled based on the event type
   const isDisabled = () => {
     const ticketDetails = event?.ticketDetails[0];
 
-    // Use case 1: Limited-Capacity Paid Event
-    if (ticketDetails?.ticketPrice > 0 && ticketDetails?.ticketPriceDetails === "paid") {
-      return ticketDetails?.ticketQuantity === 0;
+    if (!ticketDetails) return false; // If ticketDetails are missing, the event should not be disabled
+
+    const eventStartDate = new Date(event.startDateTime); // Event start date
+
+    // Case 1: PAID_LIMITED - Check ticket quantity and event date
+    if (event?.eventType === 'PAID_LIMITED') {
+      if (ticketDetails?.ticketQuantity <= 0 || eventStartDate < currentDate) {
+        return true; // Tickets are sold out or event has passed
+      }
+      return false; // Tickets available and event has not passed
     }
 
-    // Use case 2: Limited-Capacity Free Event (requires registration)
-    if (ticketDetails?.ticketPrice === 0 && ticketDetails?.ticketPriceDetails === "free") {
-      return ticketDetails?.ticketQuantity === 0;
+    // Case 2: FREE_LIMITED - Check ticket quantity and event date
+    if (event?.eventType === 'FREE_LIMITED') {
+      if (ticketDetails?.ticketQuantity <= 0 || eventStartDate < currentDate) {
+        return true; // No tickets left or event has passed
+      }
+      return false; // Tickets available and event has not passed
     }
 
-    // Use case 3: Unlimited-Capacity Free Event (open to everyone)
-    if (ticketDetails?.ticketPrice === 0 && ticketDetails?.ticketPriceDetails === "free" && ticketDetails?.ticketQuantity === undefined) {
-      return false; // Always available for unlimited capacity events
+    // Case 3: FREE_UNLIMITED - Check only event date
+    if (event?.eventType === 'FREE_UNLIMITED') {
+      if (eventStartDate < currentDate) {
+        return true; // Event date has passed
+      }
+      return false; // Event is open and future
     }
 
-    return false; // Default, should never hit here
+    return false; // Default case: event is not disabled
   };
 
   const handleClick = () => {
@@ -34,7 +49,7 @@ const EventCard = ({ event, venue }) => {
       // Show the snackbar when registration is closed
       setShowSnackbar(true);
       setTimeout(() => {
-        setShowSnackbar(false);  // Hide snackbar after 3 seconds
+        setShowSnackbar(false); // Hide snackbar after 3 seconds
       }, 3000);
     } else {
       // Navigate to event details if the card is not disabled
@@ -44,7 +59,35 @@ const EventCard = ({ event, venue }) => {
     }
   };
 
-  console.log("event data", event);
+  // Get ticket details message
+  const getTicketDetailsMessage = () => {
+    if (!event) return "Event details unavailable";
+
+    const { eventType, ticketDetails } = event;
+    const ticket = ticketDetails[0];
+
+    const eventStartDate = new Date(event.startDateTime); // Event start date
+
+    // For PAID_LIMITED and FREE_LIMITED, check ticket quantity and event date
+    if (eventType === 'PAID_LIMITED' || eventType === 'FREE_LIMITED') {
+      if (ticket.ticketQuantity <= 0 || eventStartDate < currentDate) {
+        return "Registrations closed"; // Tickets are sold out or event date has passed
+      } else {
+        return `${ticket.ticketQuantity} tickets available for ${eventType === 'PAID_LIMITED' ? `$${ticket.ticketPrice}` : 'free'}`; // Tickets available
+      }
+    }
+
+    // For FREE_UNLIMITED, only check the event date
+    if (eventType === 'FREE_UNLIMITED') {
+      if (eventStartDate < currentDate) {
+        return "Registrations closed"; // Event date has passed
+      } else {
+        return "Free and open to register"; // Event is upcoming
+      }
+    }
+
+    return "Event details unavailable"; // Default case
+  };
 
   return (
     <>
@@ -74,17 +117,7 @@ const EventCard = ({ event, venue }) => {
 
             <div className="flex items-start gap-2">
               <TicketIcon className="h-5 w-5 text-gray-500" />
-              <span>
-                {
-                  event?.ticketDetails[0]?.ticketPriceDetails === "free"
-                    ? event?.ticketDetails[0]?.ticketQuantity
-                      ? "Free and open to register"
-                      : "Registrations closed"
-                    : event?.ticketDetails[0]?.ticketQuantity
-                      ? `${event.ticketDetails[0].ticketQuantity} tickets available for $${event.ticketDetails[0].ticketPrice} each`
-                      : "Registrations closed"
-                }
-              </span>
+              <span>{getTicketDetailsMessage()}</span>
             </div>
           </div>
 

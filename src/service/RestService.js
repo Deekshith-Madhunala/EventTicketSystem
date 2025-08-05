@@ -37,6 +37,7 @@ export const createEvent = async (formData) => {
       eventName: formData.eventName,
       eventDescription: formData.description,
       eventCategory,
+      eventType: formData.eventType,
       startDateTime,
       endDateTime,
       venueId,
