@@ -345,44 +345,13 @@ const TicketBooking = () => {
 
 
         <div className="space-y-6">
-          {peopleDetails.map((person, index) => (
-            <div key={index} className="border p-5 rounded-md shadow-sm bg-white relative">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Attendee {index + 1}</h3>
-                {peopleDetails.length > 1 && (
-                  <button
-                    onClick={() => deletePerson(index)}
-                    type="button"
-                    className="text-red-500 hover:text-red-600 text-xl font-bold"
-                  >
-                    &times;
-                  </button>
-                )}
-              </div>
-              <input
-                name="name"
-                type="text"
-                value={person.name}
-                onChange={(e) => handleInputChange(index, e)}
-                placeholder="Full Name"
-                className="p-2 w-full border rounded mb-2"
-              />
-              <input
-                name="email"
-                type="email"
-                value={person.email}
-                onChange={(e) => handleInputChange(index, e)}
-                placeholder="Email Address"
-                className="p-2 w-full border rounded"
-              />
-            </div>
-          ))}
-          <button
+          
+          {/* <button
             onClick={addPerson}
             className="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700"
           >
             Add Another Attendee
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -417,7 +386,7 @@ const TicketBooking = () => {
         isOpen={isPaymentModalOpen}
         onClose={() => setPaymentModalOpen(false)}
         eventData={{ ...event, selectedDates }}  // Add selectedDates to eventData
-        attendees={peopleDetails}
+        // attendees={peopleDetails}
         total={totalPrice}
         tax={tax}
         basePrice={basePrice}

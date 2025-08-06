@@ -196,23 +196,40 @@ const CreateEvent = () => {
 
                     <div>
                         <p className="text-sm text-gray-700">Event Type?</p>
-                        <select
-                            value={formData.eventType}
-                            onChange={e => handleChange('eventType', e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md"
-                        >
-                            <option value="">Select a Type of Event</option>
-                            <option value="PAID_LIMITED">
+                        <div className="space-y-2">
+                            <label className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    value="PAID_LIMITED"
+                                    checked={formData.eventType === 'PAID_LIMITED'}
+                                    onChange={e => handleChange('eventType', e.target.checked ? 'PAID_LIMITED' : '')}
+                                    className="mr-2"
+                                />
                                 Paid, Limited Capacity – e.g. Concerts, Sports Games
-                            </option>
-                            <option value="FREE_LIMITED">
+                            </label>
+                            <label className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    value="FREE_LIMITED"
+                                    checked={formData.eventType === 'FREE_LIMITED'}
+                                    onChange={e => handleChange('eventType', e.target.checked ? 'FREE_LIMITED' : '')}
+                                    className="mr-2"
+                                />
                                 Free, Limited Capacity – e.g. Conferences, Meetings
-                            </option>
-                            <option value="FREE_UNLIMITED">
+                            </label>
+                            <label className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    value="FREE_UNLIMITED"
+                                    checked={formData.eventType === 'FREE_UNLIMITED'}
+                                    onChange={e => handleChange('eventType', e.target.checked ? 'FREE_UNLIMITED' : '')}
+                                    className="mr-2"
+                                />
                                 Free, Unlimited Capacity – e.g. Exhibitions, Fairs
-                            </option>
-                        </select>
+                            </label>
+                        </div>
                     </div>
+
 
 
                     <div>
