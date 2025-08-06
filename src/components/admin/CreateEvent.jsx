@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarIcon, ClockIcon, MapPinIcon, PhotoIcon, TagIcon, TicketIcon, UserIcon, ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
+import { CalendarIcon, ClockIcon, MapPinIcon, PhotoIcon, TagIcon, TicketIcon, UserIcon, ChatBubbleBottomCenterTextIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from "react-router-dom";
-import { fetchGoogleImages, createEvent } from '../../service/RestService';
+import { fetchGoogleImages, createEvent, fetchUsers } from '../../service/RestService';
 
 const TABS = ['Basic Info', 'Schedule & Venue', 'Tickets', 'Contact & Media'];
 const CATEGORIES = [
@@ -54,7 +54,6 @@ const ImageSelectionModal = ({ images, isOpen, onClose, onSelect, selectedImage 
     );
 };
 
-
 const CreateEvent = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState(0);
@@ -66,6 +65,7 @@ const CreateEvent = () => {
     const [loadingPosterImages, setLoadingPosterImages] = useState(false);
     const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
     const [isPosterModalOpen, setIsPosterModalOpen] = useState(false);
+    const [managers, setManagers] = useState([]);
 
     const [formData, setFormData] = useState({
         eventName: '',
@@ -88,6 +88,7 @@ const CreateEvent = () => {
         additionalMessage: '',
         coverPhoto: null,
         posterPhoto: null,
+        manager: '',
     });
 
     const handleChange = (field, value) => {
@@ -144,6 +145,27 @@ const CreateEvent = () => {
         }
     }, [formData.eventType]);
 
+    useEffect(() => {
+        // Fetch users from the API using the imported method
+        const getUsers = async () => {
+            try {
+                const data = await fetchUsers();
+
+                // Filter out the managers from the list of users
+                const managerList = data.filter(user => user.role === 'MANAGER');
+                setManagers(managerList);
+
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        getUsers();
+    }, []);
+
+    // console.log("Managers", managers);
 
     const LabelWithIcon = ({ icon: Icon, text }) => (
         <label className="flex items-center text-gray-700 font-medium mb-1">
@@ -429,6 +451,23 @@ const CreateEvent = () => {
                             className="w-full p-2 border border-gray-300 rounded-md"
                         />
                     </div>
+
+                    <div>
+                        <LabelWithIcon icon={UserCircleIcon} text="Add Manager for this Event to maintain" />
+                        <select
+                            value={formData.manager}
+                            onChange={e => handleChange('manager', e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                        >
+                            <option value="">Select a Manager</option>
+                            {managers.map(manager => (
+                                <option key={manager.id} value={manager.id}>
+                                    {manager.username}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
 
                     <div>
                         <LabelWithIcon icon={PhotoIcon} text="Cover Photo" />

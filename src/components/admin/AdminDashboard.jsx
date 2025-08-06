@@ -6,6 +6,8 @@ import {
     CurrencyDollarIcon,
     PlusIcon,
     ChartBarIcon,
+    TrashIcon,
+    PencilIcon,  // Add trash icon for the delete button
 } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,6 +18,7 @@ const AdminDashboard = () => {
     const [events, setEvents] = useState([]);
     const [bookings, setBookings] = useState([]);
     const [venues, setVenues] = useState([]);
+    const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -23,21 +26,52 @@ const AdminDashboard = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                const userFromStorage = JSON.parse(localStorage.getItem('user'));
+                if (!userFromStorage) {
+                    throw new Error("User not found in localStorage.");
+                }
+
                 const eventResponse = await fetch('http://localhost:8080/api/events');
                 const bookingResponse = await fetch('http://localhost:8080/api/bookings');
                 const venueResponse = await fetch('http://localhost:8080/api/venues');
+                const userResponse = await fetch('http://localhost:8080/api/users');
 
-                if (!eventResponse.ok || !bookingResponse.ok || !venueResponse.ok) {
+                if (!eventResponse.ok || !bookingResponse.ok || !venueResponse.ok || !userResponse.ok) {
                     throw new Error('Failed to fetch data');
                 }
 
                 const eventsData = await eventResponse.json();
                 const bookingsData = await bookingResponse.json();
                 const venuesData = await venueResponse.json();
+                const usersData = await userResponse.json();
 
-                setEvents(eventsData);
-                setBookings(bookingsData);
+                let filteredEvents = eventsData;
+                let filteredBookings = bookingsData;
+
+                if (userFromStorage.role === 'MANAGER') {
+                    // Find venueIds managed by this user
+                    const managedVenueIds = venuesData
+                        .filter(venue => venue.manager === userFromStorage.id)
+                        .map(venue => venue.id);
+
+                    // Filter events by venueId
+                    filteredEvents = eventsData.filter(event =>
+                        managedVenueIds.includes(event.venueId)
+                    );
+
+                    // Get event IDs that belong to this manager
+                    const managerEventIds = filteredEvents.map(event => event.id);
+
+                    // Filter bookings to only include those related to manager's events
+                    filteredBookings = bookingsData.filter(booking =>
+                        managerEventIds.includes(booking.eventId)
+                    );
+                }
+
+                setEvents(filteredEvents);
+                setBookings(filteredBookings);
                 setVenues(venuesData);
+                setUsers(usersData);
                 setLoading(false);
             } catch (error) {
                 setError(error.message);
@@ -47,6 +81,30 @@ const AdminDashboard = () => {
 
         fetchData();
     }, []);
+
+    // Delete an event
+    const deleteEvent = async (eventId) => {
+        const confirmed = window.confirm('Are you sure you want to delete this event?');
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/events/${eventId}`, {
+                method: 'DELETE',
+                headers: {
+                    'accept': '*/*',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete event');
+            }
+
+            // Update the state to remove the event from the list
+            setEvents(events.filter(event => event.id !== eventId));
+        } catch (error) {
+            alert(error.message);
+        }
+    };
 
     // Calculate stats
     const totalBookings = bookings.length;
@@ -187,6 +245,22 @@ const AdminDashboard = () => {
                                 {event.additionalMessage && (
                                     <p className="mt-4 text-gray-500 text-xs italic">{event.additionalMessage}</p>
                                 )}
+
+                                {/* Delete Button */}
+                                <button
+                                    onClick={() => deleteEvent(event.id)}
+                                    className="mt-4 flex items-center gap-2 text-red-600 hover:text-red-800"
+                                >
+                                    <TrashIcon className="h-5 w-5" />
+                                    Delete
+                                </button>
+                                <button
+                                    onClick={() => navigate(`/edit-event/${event.id}`)}
+                                    className="mt-4 flex items-center gap-2 text-blue-600 hover:text-blue-800"
+                                >
+                                    <PencilIcon className="h-5 w-5" />
+                                    Edit
+                                </button>
                             </div>
                         </div>
                     );

@@ -8,5 +8,6 @@ export const RoutePaths = {
   SUCCESS:'/success',
   ADMIN:'/admin',
   CREATE:'/create-event',
-  MY_BOOKINGS:'/my-bookings'
+  MY_BOOKINGS:'/my-bookings',
+  EDIT: '/edit-event/:eventId',
 };

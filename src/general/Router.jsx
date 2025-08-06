@@ -13,6 +13,7 @@ import CreateEvent from "../components/admin/CreateEvent.jsx";
 import MyBookings from "../components/bookings/MyBookings.jsx";
 import PrivateRoute from "../general/PrivateRoute"; // 🔐 Import this
 import EventsGrid from "../components/Cards/EventCards/EventsGrid.jsx";
+import EditEventForm from "../components/admin/EditEventForm.jsx"
 
 export const AppRouter = () => (
   <Routes>
@@ -36,6 +37,10 @@ export const AppRouter = () => (
     <Route path={RoutePaths.EVENTS} element={<Layout><EventsGrid /></Layout>} />
     <Route path={RoutePaths.CREATE} element={<Layout><CreateEvent /></Layout>} />
     <Route path={RoutePaths.MY_BOOKINGS} element={<Layout><MyBookings /></Layout>} />
+    <Route path={RoutePaths.EDIT} element={<Layout><EditEventForm /></Layout>} />
+
+    {/* <Route path="/edit-event/:eventId" element={<EditEventForm />} /> */}
+
 
     {/* 🔐 Protected Routes */}
     {/* <Route

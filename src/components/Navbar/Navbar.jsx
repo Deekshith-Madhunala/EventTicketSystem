@@ -87,6 +87,11 @@ const Navbar = () => {
                     <a href="/admin" className="block px-4 py-2 text-sm text-gray-700">Admin</a>
                   </MenuItem>
                 )}
+                {user?.role === 'MANAGER' && (
+                  <MenuItem>
+                    <a href="/admin" className="block px-4 py-2 text-sm text-gray-700">Manager</a>
+                  </MenuItem>
+                )}
 
                 {/* Display logged-in user name */}
                 {user && (
